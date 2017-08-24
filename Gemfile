@@ -29,6 +29,7 @@ gem 'jbuilder', '~> 2.5'
 # gem 'redis', '~> 3.0'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
+#gem 'spree_account_recurring', '~> 2.1' #unfortunately doesn't work with this version of spree...
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -39,6 +40,8 @@ gem 'spree_gateway', '~> 3.3'
 
 gem 'spree_active_shipping', github: 'spree-contrib/spree_active_shipping'
 gem 'active_shipping'
+
+gem 'spree_i18n', github: 'spree-contrib/spree_i18n', branch: 'master'
 
 
 group :development, :test do
