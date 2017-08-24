@@ -43,6 +43,8 @@ gem 'active_shipping'
 
 gem 'spree_i18n', github: 'spree-contrib/spree_i18n', branch: 'master'
 
+gem 'spree_account_recurring', github: 'javogel/spree-account-recurring'
+
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
