@@ -47,6 +47,9 @@ gem 'spree_account_recurring', github: 'javogel/spree-account-recurring'
 
 gem 'spree_multi_currency', github: 'spree-contrib/spree_multi_currency'
 gem 'spree_multi_domain', github: 'spree-contrib/spree-multi-domain'
+# gem 'spree_product_assembly', github: 'spree-contrib/spree-product-assembly'
+gem 'spree_static_content', github: 'spree-contrib/spree_static_content'
+gem 'spree_print_invoice', github: 'spree-contrib/spree_print_invoice', branch: 'master'
 
 
 group :development, :test do
