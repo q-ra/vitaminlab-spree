@@ -8,6 +8,17 @@ GIT
       stripe_tester
 
 GIT
+  remote: https://github.com/spree-contrib/spree-multi-domain.git
+  revision: ba25c08def948d84e838097f63c02c01942b12ce
+  specs:
+    spree_multi_domain (3.3.0)
+      spree_api (>= 3.1.0, < 4.0)
+      spree_backend (>= 3.1.0, < 4.0)
+      spree_core (>= 3.1.0, < 4.0)
+      spree_extension
+      spree_frontend (>= 3.1.0, < 4.0)
+
+GIT
   remote: https://github.com/spree-contrib/spree_active_shipping.git
   revision: c076952d2dc7de4c42b70a2385d0da86b2a5fe2a
   specs:
@@ -26,6 +37,14 @@ GIT
       rails-i18n
       routing-filter
       spree_core (>= 3.1.0, < 4.0)
+      spree_extension
+
+GIT
+  remote: https://github.com/spree-contrib/spree_multi_currency.git
+  revision: 7b1fc8cc1fd52ef9e5fe92b78aee06ddca7b3d46
+  specs:
+    spree_multi_currency (3.3.0.rc1)
+      spree_backend (>= 3.1.0, < 4.0)
       spree_extension
 
 GEM
@@ -311,7 +330,7 @@ GEM
       rabl (~> 0.13.1)
       spree_core (= 3.3.0)
       versioncake (~> 3.3.0)
-    spree_auth_devise (3.3.0)
+    spree_auth_devise (3.3.1)
       devise (~> 4.3.0)
       devise-encryptable (= 0.2.0)
       spree_core (>= 3.1.0, < 4.0)
@@ -440,6 +459,8 @@ DEPENDENCIES
   spree_auth_devise (~> 3.3)
   spree_gateway (~> 3.3)
   spree_i18n!
+  spree_multi_currency!
+  spree_multi_domain!
   spring
   spring-watcher-listen (~> 2.0.0)
   turbolinks (~> 5)

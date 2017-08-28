@@ -45,6 +45,9 @@ gem 'spree_i18n', github: 'spree-contrib/spree_i18n', branch: 'master'
 
 gem 'spree_account_recurring', github: 'javogel/spree-account-recurring'
 
+gem 'spree_multi_currency', github: 'spree-contrib/spree_multi_currency'
+gem 'spree_multi_domain', github: 'spree-contrib/spree-multi-domain'
+
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
