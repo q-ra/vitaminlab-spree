@@ -29,7 +29,7 @@ gem 'jbuilder', '~> 2.5'
 # gem 'redis', '~> 3.0'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
-#gem 'spree_account_recurring', '~> 2.1' #unfortunately doesn't work with this version of spree...
+gem 'aws-sdk', '>= 2.0'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -47,9 +47,11 @@ gem 'spree_account_recurring', github: 'javogel/spree-account-recurring'
 
 gem 'spree_multi_currency', github: 'spree-contrib/spree_multi_currency'
 gem 'spree_multi_domain', github: 'spree-contrib/spree-multi-domain'
-# gem 'spree_product_assembly', github: 'spree-contrib/spree-product-assembly'
+#gem 'spree_product_assembly', github: 'markbiegel/spree-product-assembly', branch: '3-2-stable'
 gem 'spree_static_content', github: 'spree-contrib/spree_static_content'
 gem 'spree_print_invoice', github: 'spree-contrib/spree_print_invoice', branch: 'master'
+gem 'spree_editor', github: 'spree-contrib/spree_editor'
+gem 'tinymce-rails-langs'
 
 
 group :development, :test do
