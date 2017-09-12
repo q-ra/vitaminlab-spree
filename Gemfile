@@ -52,6 +52,7 @@ gem 'spree_static_content', github: 'spree-contrib/spree_static_content'
 gem 'spree_print_invoice', github: 'spree-contrib/spree_print_invoice', branch: 'master'
 gem 'spree_editor', github: 'spree-contrib/spree_editor'
 gem 'tinymce-rails-langs'
+# gem 'spree-product-assembly', github: 'DethonUSAL/spree-product-assembly', branch: 'develop' currently doesn't work with our spree version
 
 
 group :development, :test do
