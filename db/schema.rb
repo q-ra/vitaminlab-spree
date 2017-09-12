@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170828162049) do
+ActiveRecord::Schema.define(version: 20170829164407) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -426,6 +426,23 @@ ActiveRecord::Schema.define(version: 20170828162049) do
     t.index ["variant_id"], name: "index_spree_prices_on_variant_id"
   end
 
+  create_table "spree_product_groups", force: :cascade do |t|
+    t.bigint "spree_users_id"
+    t.string "name"
+    t.string "permalink"
+    t.string "order"
+    t.index ["name"], name: "index_spree_product_groups_on_name"
+    t.index ["permalink"], name: "index_spree_product_groups_on_permalink"
+    t.index ["spree_users_id"], name: "index_spree_product_groups_on_spree_users_id"
+  end
+
+  create_table "spree_product_groups_products", id: false, force: :cascade do |t|
+    t.bigint "product_id"
+    t.bigint "spree_product_group_id"
+    t.index ["product_id"], name: "index_spree_product_groups_products_on_product_id"
+    t.index ["spree_product_group_id"], name: "index_spree_product_groups_products_on_spree_product_group_id"
+  end
+
   create_table "spree_product_option_types", id: :serial, force: :cascade do |t|
     t.integer "position"
     t.integer "product_id"
@@ -464,6 +481,14 @@ ActiveRecord::Schema.define(version: 20170828162049) do
     t.index ["position"], name: "index_spree_product_properties_on_position"
     t.index ["product_id"], name: "index_product_properties_on_product_id"
     t.index ["property_id"], name: "index_spree_product_properties_on_property_id"
+  end
+
+  create_table "spree_product_scopes", force: :cascade do |t|
+    t.string "name"
+    t.text "arguments"
+    t.bigint "spree_product_group_id"
+    t.index ["name"], name: "index_spree_product_scopes_on_name"
+    t.index ["spree_product_group_id"], name: "index_spree_product_scopes_on_spree_product_group_id"
   end
 
   create_table "spree_products", id: :serial, force: :cascade do |t|
