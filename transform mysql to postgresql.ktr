@@ -600,17 +600,42 @@
     </hop>
     <hop>
       <from>Block this step until steps finish</from>
-      <to>Get prices</to>
+      <to>Get Costs</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Get prices</from>
+      <from>Get Costs</from>
       <to>Lookup product ids 2</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>Lookup product ids 2</from>
       <to>create product variants</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>create product variants</from>
+      <to>Block this step until steps finish 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Block this step until steps finish 2</from>
+      <to>Get Prices</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Get Prices</from>
+      <to>Lookup product ids 2 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Lookup product ids 2 2</from>
+      <to>Lookup variant ids </to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Lookup variant ids </from>
+      <to>Insert / Update prices</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -1242,7 +1267,7 @@ FROM r235_users
     </GUI>
   </step>
   <step>
-    <name>Get prices</name>
+    <name>Get Costs</name>
     <type>TableInput</type>
     <description />
     <distribute>Y</distribute>
@@ -1264,7 +1289,7 @@ FROM r235_users
 FROM r235_postmeta as pm 
 left join r235_posts as p on p.id = pm.post_id
 inner join r235_term_relationships as tr on tr.object_id = p.id
-where post_type = 'Vitamin' and meta_key  = 'Cost' and meta_value !='';</sql>
+where post_type = 'Vitamin' and meta_key  = 'Cost';</sql>
     <limit>0</limit>
     <lookup />
     <execute_each_row>N</execute_each_row>
@@ -1354,8 +1379,8 @@ where post_type = 'Vitamin' and meta_key  = 'Cost' and meta_value !='';</sql>
       <schema />
       <table>spree_prices</table>
       <key>
-        <name>product_id</name>
-        <field>product_id</field>
+        <name>variant_id</name>
+        <field>variant_id</field>
         <condition>=</condition>
         <name2 />
       </key>
@@ -1370,6 +1395,11 @@ where post_type = 'Vitamin' and meta_key  = 'Cost' and meta_value !='';</sql>
         <rename>meta_value</rename>
         <update>Y</update>
       </value>
+      <value>
+        <name>variant_id</name>
+        <rename>variant_id</rename>
+        <update>Y</update>
+      </value>
     </lookup>
     <cluster_schema />
     <remotesteps>
@@ -1379,8 +1409,8 @@ where post_type = 'Vitamin' and meta_key  = 'Cost' and meta_value !='';</sql>
       </output>
     </remotesteps>
     <GUI>
-      <xloc>816</xloc>
-      <yloc>272</yloc>
+      <xloc>832</xloc>
+      <yloc>352</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1388,7 +1418,7 @@ where post_type = 'Vitamin' and meta_key  = 'Cost' and meta_value !='';</sql>
     <name>create product variants</name>
     <type>TableOutput</type>
     <description />
-    <distribute>Y</distribute>
+    <distribute>N</distribute>
     <custom_distribution />
     <copies>1</copies>
     <partitioning>
@@ -1448,6 +1478,206 @@ where post_type = 'Vitamin' and meta_key  = 'Cost' and meta_value !='';</sql>
     <GUI>
       <xloc>640</xloc>
       <yloc>272</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Block this step until steps finish 2</name>
+    <type>BlockUntilStepsFinish</type>
+    <description />
+    <distribute>N</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <steps>
+      <step>
+        <name>Get products</name>
+        <CopyNr>0</CopyNr>
+      </step>
+      <step>
+        <name>get users</name>
+        <CopyNr>0</CopyNr>
+      </step>
+      <step>
+        <name>insert to users table</name>
+        <CopyNr>0</CopyNr>
+      </step>
+      <step>
+        <name>save products</name>
+        <CopyNr>0</CopyNr>
+      </step>
+      <step>
+        <name>create product taxons</name>
+        <CopyNr>0</CopyNr>
+      </step>
+      <step>
+        <name>Get products taxons</name>
+        <CopyNr>0</CopyNr>
+      </step>
+      <step>
+        <name>Get taxon ids</name>
+        <CopyNr>0</CopyNr>
+      </step>
+      <step>
+        <name>create product variants</name>
+        <CopyNr>0</CopyNr>
+      </step>
+    </steps>
+    <cluster_schema />
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>832</xloc>
+      <yloc>272</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Get Prices</name>
+    <type>TableInput</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <connection>mysql</connection>
+    <sql>SELECT
+  meta_id
+, p.post_name
+, post_id
+, meta_key
+, cast(meta_value AS DECIMAL(10,2)) as meta_value
+, DATE_SUB(NOW(),INTERVAL 1 YEAR) as product_date
+, 1 as master
+FROM r235_postmeta as pm 
+left join r235_posts as p on p.id = pm.post_id
+inner join r235_term_relationships as tr on tr.object_id = p.id
+where post_type = 'Vitamin' and meta_key  = 'Price' and meta_value !='';</sql>
+    <limit>0</limit>
+    <lookup />
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+    <cluster_schema />
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>368</xloc>
+      <yloc>352</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Lookup product ids 2 2</name>
+    <type>DBLookup</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <connection>postgresql</connection>
+    <cache>N</cache>
+    <cache_load_all>N</cache_load_all>
+    <cache_size>0</cache_size>
+    <lookup>
+      <schema />
+      <table>spree_products</table>
+      <orderby />
+      <fail_on_multiple>N</fail_on_multiple>
+      <eat_row_on_failure>N</eat_row_on_failure>
+      <key>
+        <name>post_name</name>
+        <field>slug</field>
+        <condition>LIKE</condition>
+        <name2 />
+      </key>
+      <value>
+        <name>id</name>
+        <rename>product_id</rename>
+        <default />
+        <type>Number</type>
+      </value>
+      <value>
+        <name>promotionable</name>
+        <rename>is_master</rename>
+        <default />
+        <type>Boolean</type>
+      </value>
+    </lookup>
+    <cluster_schema />
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>496</xloc>
+      <yloc>352</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Lookup variant ids </name>
+    <type>DBLookup</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <connection>postgresql</connection>
+    <cache>N</cache>
+    <cache_load_all>N</cache_load_all>
+    <cache_size>0</cache_size>
+    <lookup>
+      <schema />
+      <table>spree_variants</table>
+      <orderby />
+      <fail_on_multiple>N</fail_on_multiple>
+      <eat_row_on_failure>N</eat_row_on_failure>
+      <key>
+        <name>product_id</name>
+        <field>product_id</field>
+        <condition>=</condition>
+        <name2 />
+      </key>
+      <value>
+        <name>id</name>
+        <rename>variant_id</rename>
+        <default />
+        <type>Number</type>
+      </value>
+    </lookup>
+    <cluster_schema />
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>352</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
