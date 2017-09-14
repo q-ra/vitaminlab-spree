@@ -14,7 +14,10 @@
 # Configure Using Gemfile
 # gem 'pg'
 #
-default: &default
+mysql:
+    adapter: mysql
+    database: vit_main
+postgres: &default
   adapter: postgresql
   encoding: unicode
   # For details on connection pooling, see Rails configuration guide

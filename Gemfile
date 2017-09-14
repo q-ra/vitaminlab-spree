@@ -37,6 +37,7 @@ gem 'aws-sdk', '>= 2.0'
 gem 'spree', '~> 3.3'
 gem 'spree_auth_devise', '~> 3.3'
 gem 'spree_gateway', '~> 3.3'
+gem 'kiba'
 
 gem 'spree_active_shipping', github: 'spree-contrib/spree_active_shipping'
 gem 'active_shipping'
@@ -52,6 +53,7 @@ gem 'spree_static_content', github: 'spree-contrib/spree_static_content'
 gem 'spree_print_invoice', github: 'spree-contrib/spree_print_invoice', branch: 'master'
 gem 'spree_editor', github: 'spree-contrib/spree_editor'
 gem 'tinymce-rails-langs'
+gem 'mysql2'
 
 
 group :development, :test do

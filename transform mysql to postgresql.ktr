@@ -599,23 +599,8 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Block this step until steps finish</from>
-      <to>Get Costs</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Get Costs</from>
       <to>Lookup product ids 2</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Lookup product ids 2</from>
-      <to>create product variants</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>create product variants</from>
-      <to>Block this step until steps finish 2</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -636,6 +621,26 @@
     <hop>
       <from>Lookup variant ids </from>
       <to>Insert / Update prices</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Block this step until steps finish</from>
+      <to>create variants</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>create variants</from>
+      <to>Get Costs</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Lookup product ids 2</from>
+      <to>Update Variants of products</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Update Variants of products</from>
+      <to>Block this step until steps finish 2</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -1415,73 +1420,6 @@ where post_type = 'Vitamin' and meta_key  = 'Cost';</sql>
     </GUI>
   </step>
   <step>
-    <name>create product variants</name>
-    <type>TableOutput</type>
-    <description />
-    <distribute>N</distribute>
-    <custom_distribution />
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name />
-    </partitioning>
-    <connection>postgresql</connection>
-    <schema />
-    <table>spree_variants</table>
-    <commit>1000</commit>
-    <truncate>Y</truncate>
-    <ignore_errors>N</ignore_errors>
-    <use_batch>N</use_batch>
-    <specify_fields>Y</specify_fields>
-    <partitioning_enabled>N</partitioning_enabled>
-    <partitioning_field />
-    <partitioning_daily>N</partitioning_daily>
-    <partitioning_monthly>Y</partitioning_monthly>
-    <tablename_in_field>N</tablename_in_field>
-    <tablename_field />
-    <tablename_in_table>Y</tablename_in_table>
-    <return_keys>Y</return_keys>
-    <return_field>id</return_field>
-    <fields>
-      <field>
-        <column_name>product_id</column_name>
-        <stream_name>product_id</stream_name>
-      </field>
-      <field>
-        <column_name>cost_price</column_name>
-        <stream_name>meta_value</stream_name>
-      </field>
-      <field>
-        <column_name>created_at</column_name>
-        <stream_name>product_date</stream_name>
-      </field>
-      <field>
-        <column_name>updated_at</column_name>
-        <stream_name>product_date</stream_name>
-      </field>
-      <field>
-        <column_name>is_master</column_name>
-        <stream_name>is_master</stream_name>
-      </field>
-      <field>
-        <column_name>sku</column_name>
-        <stream_name>post_name</stream_name>
-      </field>
-    </fields>
-    <cluster_schema />
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>640</xloc>
-      <yloc>272</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
     <name>Block this step until steps finish 2</name>
     <type>BlockUntilStepsFinish</type>
     <description />
@@ -1678,6 +1616,80 @@ where post_type = 'Vitamin' and meta_key  = 'Price' and meta_value !='';</sql>
     <GUI>
       <xloc>640</xloc>
       <yloc>352</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>create variants</name>
+    <type>TableOutput</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <connection>postgresql</connection>
+    <schema />
+    <table>spree_variants</table>
+    <commit>1000</commit>
+    <truncate>N</truncate>
+    <ignore_errors>N</ignore_errors>
+    <use_batch>N</use_batch>
+    <specify_fields>N</specify_fields>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_field />
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_field />
+    <tablename_in_table>Y</tablename_in_table>
+    <return_keys>N</return_keys>
+    <return_field />
+    <fields>
+    </fields>
+    <cluster_schema />
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>272</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Update Variants of products</name>
+    <type>InsertUpdate</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <connection>postgresql</connection>
+    <commit>100</commit>
+    <update_bypassed>N</update_bypassed>
+    <lookup>
+      <schema />
+      <table>spree_variants</table>
+    </lookup>
+    <cluster_schema />
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>272</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
