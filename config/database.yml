@@ -14,9 +14,14 @@
 # Configure Using Gemfile
 # gem 'pg'
 #
-mysql:
-    adapter: mysql
+mysql2:
+    adapter: mysql2
+    encoding: utf8
     database: vit_main
+    username: data_transfer
+    password: Pxk8q2BF3Txu
+    host: 107.180.51.235
+    port: 3306
 postgres: &default
   adapter: postgresql
   encoding: unicode

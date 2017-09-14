@@ -1,1 +1,64 @@
 require_relative '../config/environment'
+
+class LoadUsers
+  def initialize 
+    config = YAML::load_file("config/database.yml")["mysql2"]
+    @client = Mysql2::Client.new(config)
+  end 
+
+  def load_users 
+    mysql_users = @client.query("select * from r235_proxi_users")
+  end 
+
+  def insert_users(mysql_users)
+    mysql_users.each do |user|
+      #puts user["password"]
+      old_password =  user["password"]
+      old_password.length < 6 ? (6 - old_password.length).times{ old_password = old_password + '0' }  : old_password
+      #puts old_password
+      
+      ship_address_id = set_address(user)
+      bill_address_id = set_address(user)
+      spree_user = Spree::User.new(
+        id: user["id"], 
+        email: user["email"], 
+        password: old_password, 
+        ship_address_id: ship_address_id, 
+        bill_address_id: bill_address_id
+      )
+      if spree_user.save()
+        p "success: #{user}" 
+      else 
+        p "error: #{user}" 
+      end 
+    end
+  end 
+
+  def set_address(user)
+    #byebug
+    address = Spree::Address.new(
+      firstname: (user["name"].split(' ')[0] if user["name"]),
+      lastname: (user["name"].split(' ')[1] if user["name"]),
+      address1: "#{user["floor"]} #{user["address"]}",
+      city: user["city"], 
+      zipcode: user["zipcode"], 
+      phone: user["phone"], 
+      state_name: user["state"], 
+      state_id: Spree::State.find_by_name("#{user["state"]}")["id"], 
+      country_id: Spree::Country.find_by_name("#{user["country"]}")["id"]
+      )
+    return address["id"] if address.save
+  end 
+
+end 
+
+loader = LoadUsers.new
+mysql_users = loader.load_users
+loader.insert_users(mysql_users)
+
+
+
+
+
+
+
