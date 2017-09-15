@@ -4,8 +4,9 @@ class LoadUsers
   def initialize 
     config = YAML::load_file("config/database.yml")["mysql2"]
     @client = Mysql2::Client.new(config)
-    #truncate_table("spree_users")
-    #truncate_table("spree_addresses")
+    truncate_table("spree_users")
+    truncate_table("spree_addresses")
+    truncate_table("spree_role_users")
   end 
 
   def load_users 
@@ -29,6 +30,7 @@ class LoadUsers
         bill_address_id: bill_address_id
       )
       if spree_user.save()
+        user["type_user"] == 'regular-doc' ? make_doctor(spree_user) : make_subscriber(spree_user)
         p "success: #{user}" 
       else 
         p "error: #{user}" 
@@ -37,14 +39,19 @@ class LoadUsers
   end 
 
   def add_admin()
-    spree_user = Spree::User.new(
-        id: 1, 
-        email: 'anton@getvitaminlab.com', 
-        password: '8B3A(b2u+*6'
-      )
-    user = spree_user.save()
+    user = Spree::User.find_by_login('anton@getvitaminlab.com')
     role = Spree::Role.find_or_create_by(name: 'admin')
     user.spree_roles << role 
+  end 
+
+  def make_doctor(user)
+    role = Spree::Role.find_or_create_by(name: 'doctor')
+    user.spree_roles << role
+  end 
+
+  def make_subscriber(user)
+    role = Spree::Role.find_or_create_by(name: 'subscriber')
+    user.spree_roles << role
   end 
 
   def set_address(user)
@@ -78,8 +85,8 @@ class LoadUsers
 end 
 
 loader = LoadUsers.new
-#mysql_users = loader.load_users
-#loader.insert_users(mysql_users)
+mysql_users = loader.load_users
+loader.insert_users(mysql_users)
 loader.add_admin
 
 
