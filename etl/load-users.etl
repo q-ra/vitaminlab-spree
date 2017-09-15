@@ -4,6 +4,8 @@ class LoadUsers
   def initialize 
     config = YAML::load_file("config/database.yml")["mysql2"]
     @client = Mysql2::Client.new(config)
+    #truncate_table("spree_users")
+    #truncate_table("spree_addresses")
   end 
 
   def load_users 
@@ -17,8 +19,8 @@ class LoadUsers
       old_password.length < 6 ? (6 - old_password.length).times{ old_password = old_password + '0' }  : old_password
       #puts old_password
       
-      ship_address_id = set_address(user)
-      bill_address_id = set_address(user)
+      ship_address_id = set_address(user) if user["address"] != ''
+      bill_address_id = set_address(user) if user["address"] != '' 
       spree_user = Spree::User.new(
         id: user["id"], 
         email: user["email"], 
@@ -34,27 +36,51 @@ class LoadUsers
     end
   end 
 
+  def add_admin()
+    spree_user = Spree::User.new(
+        id: 1, 
+        email: 'anton@getvitaminlab.com', 
+        password: '8B3A(b2u+*6'
+      )
+    user = spree_user.save()
+    role = Spree::Role.find_or_create_by(name: 'admin')
+    user.spree_roles << role 
+  end 
+
   def set_address(user)
     #byebug
+    floor = user["floor"] != '' ? user["floor"] : '' 
+    phone = user["phone"] != '' ? user["phone"] : ''
+    firstname = user["name"].split(' ')[0] != nil ? user["name"].split(' ')[0] : '' if user["name"]
+    lastname = user["name"].split(' ')[1] != nil ? user["name"].split(' ')[1] : '' if user["name"]
+    country = Spree::Country.find_by_name("#{user["country"]}") != nil ? Spree::Country.find_by_name("#{user["country"]}") : 
+                                                                       Spree::Country.find_by_iso3("#{user["country"]}")
+    state = Spree::State.find_by_name("#{user["state"]}") != nil ? Spree::State.find_by_name("#{user["state"]}") : 
+                                                                    Spree::State.find_by_abbr("#{user["state"]}")
     address = Spree::Address.new(
-      firstname: (user["name"].split(' ')[0] if user["name"]),
-      lastname: (user["name"].split(' ')[1] if user["name"]),
-      address1: "#{user["floor"]} #{user["address"]}",
+      firstname: firstname,
+      lastname: lastname,
+      address1: "#{floor} #{user["address"]}",
       city: user["city"], 
       zipcode: user["zipcode"], 
-      phone: user["phone"], 
+      phone: phone, 
       state_name: user["state"], 
-      state_id: Spree::State.find_by_name("#{user["state"]}")["id"], 
-      country_id: Spree::Country.find_by_name("#{user["country"]}")["id"]
+      state_id: state["id"], 
+      country_id: country["id"]
       )
     return address["id"] if address.save
+  end 
+
+  def truncate_table(table_name)
+    ActiveRecord::Base.connection.execute("TRUNCATE #{table_name} RESTART IDENTITY")
   end 
 
 end 
 
 loader = LoadUsers.new
-mysql_users = loader.load_users
-loader.insert_users(mysql_users)
+#mysql_users = loader.load_users
+#loader.insert_users(mysql_users)
+loader.add_admin
 
 
 
