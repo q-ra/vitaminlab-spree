@@ -1,0 +1,112 @@
+require_relative '../config/environment'
+
+class LoadProducts
+  def initialize 
+    config = YAML::load_file("config/database.yml")["mysql2"]
+    @client = Mysql2::Client.new(config)
+    truncate_table("spree_products")
+    truncate_table("spree_variants")
+    truncate_table("spree_prices")
+    truncate_table("spree_products_taxons")
+  end 
+
+  def load_products
+    mysql_products = @client.query("SELECT p.id, p.post_title as name,p.post_name as slug, p.post_date as available_on, t.name as taxon_name
+                      FROM r235_term_relationships as tr 
+                      left join r235_terms as t on t.term_id = tr.term_taxonomy_id
+                      left join r235_posts as p on p.id = tr.object_id
+                      where post_type = 'Vitamin'")
+  end 
+
+  def get_product_price(product_id)
+    product_price = @client.query("SELECT
+                                    meta_value as price
+                                    FROM r235_postmeta as pm 
+                                    left join r235_posts as p on p.id = pm.post_id
+                                    inner join r235_term_relationships as tr on tr.object_id = p.id
+                                    where post_type = 'Vitamin' and meta_key  = 'Price' and p.id = #{product_id} 
+                                    and meta_value !=''").first["price"]
+  end 
+
+  def get_product_cost(product_id)
+    product_cost = @client.query("SELECT
+                                    meta_value as cost
+                                    FROM r235_postmeta as pm 
+                                    left join r235_posts as p on p.id = pm.post_id
+                                    inner join r235_term_relationships as tr on tr.object_id = p.id
+                                    where post_type = 'Vitamin' and meta_key  = 'cost' and p.id = #{product_id} 
+                                    and meta_value !=''")
+    product_cost.first ? product_cost.first["cost"] : 0
+
+  end
+
+  def set_product_properties(product)
+    rdv_prop = Spree::Property.where(name: 'RDV').first_or_create
+    dose_prop = Spree::Property.where(name: 'Dose').first_or_create
+    subname_prop = Spree::Property.where(name: 'Subname').first_or_create 
+
+    rdv_value = get_product_property('RDV',product["id"]).first
+    dose_value = get_product_property('Dose',product["id"]).first
+    subname_value = get_product_property('Subname', product["id"]).first
+
+    Spree::ProductProperty.create property: rdv_prop, product: p, value: rdv_value["meta_value"] if rdv_value
+    Spree::ProductProperty.create property: dose_prop, product: p, value: dose_value["meta_value"] if dose_value
+    Spree::ProductProperty.create property: subname_prop, product: p, value: subname_value["meta_value"] if subname_value
+
+  end 
+
+  def get_product_property(property, product_id)
+    property = @client.query("SELECT
+                                meta_id
+                              , p.post_name
+                              , post_id
+                              , meta_key
+                              , meta_value
+                              FROM r235_postmeta as pm 
+                              left join r235_posts as p on p.id = pm.post_id
+                              inner join r235_term_relationships as tr on tr.object_id = p.id
+                              where post_type = 'Vitamin' and meta_key = #{property} 
+                              and p.id = #{product_id} and meta_value !=''")
+  end 
+
+  def save_products(mysql_products)
+    mysql_products.each do |product|
+      spree_product = Spree::Product.new(
+          id: product["id"],
+          name: product["name"], 
+          slug: product["slug"], 
+          available_on: product["available_on"], 
+          promotionable:  true, 
+          price: get_product_price(product["id"]), 
+          sku: product["slug"],
+          cost_price: get_product_cost(product["id"])
+        )
+      spree_product.shipping_category = Spree::ShippingCategory.where(name: 'Default').first_or_create
+      store = Spree::Store.find_by_name("VitaminLab")
+      spree_product.stores << store
+
+      if spree_product.save()
+        save_product_taxon(spree_product, product)
+
+        p "Success: #{product["name"]} added"
+      else
+        p "Failure: #{product["name"]} could not be added"
+      end 
+    end 
+  end 
+
+  def save_product_taxon(spree_product,product)
+    taxon = Spree::Taxon.find_by_name(product["taxon_name"])
+    spree_product.taxons << taxon
+  end 
+
+
+  def truncate_table(table_name)
+    ActiveRecord::Base.connection.execute("TRUNCATE #{table_name} RESTART IDENTITY")
+  end 
+  
+end 
+
+loader = LoadProducts.new
+mysql_products = loader.load_products
+loader.save_products(mysql_products)
