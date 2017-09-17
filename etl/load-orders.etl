@@ -1,0 +1,48 @@
+require_relative '../config/environment'
+
+class LoadOrders
+  def initialize 
+    config = YAML::load_file("config/database.yml")["mysql2"]
+    @client = Mysql2::Client.new(config)
+    truncate_table("spree_orders")
+    truncate_table("spree_line_items")
+    truncate_table("spree_bookkeeping_documents")
+  end 
+
+  def load_orders
+    mysql_orders = @client.query("select * from r235_proxi_orders where totalprice > 0 and formula_json not in ('','[]')")
+  end 
+
+  
+
+  def insert_orders(mysql_orders)
+    mysql_orders.each do |order|
+      line_items = JSON.parse(order["formula_json"].delete! '\\\\\\\\\\\\') if order["formula_json"].length > 3 
+      p order["id"]
+      p order
+      spree_order = Spree::Order.new(
+          id: order["id"], 
+          item_total: line_items.count, 
+          total: order["totalprice"], 
+          payment_total: order["totalprice"],
+          user_id: order["userid"] , 
+          bill_address_id: Spree::User.find_by_id(order["userid"]).bill_address, 
+          ship_address_id: Spree::User.find_by_id(order["userid"]).ship_address, 
+          email: order["email"], 
+          created_at: order["submit_date"], 
+          updated_at: order["submit_date"], 
+          currency: 'USD',
+          store_id: Spree::Store.find_by_name("VitaminLab")["id"]
+        ).save!
+    end
+
+  end 
+
+  def truncate_table(table_name)
+    ActiveRecord::Base.connection.execute("TRUNCATE #{table_name} RESTART IDENTITY")
+  end 
+end
+
+loader = LoadOrders.new
+mysql_orders = loader.load_orders
+loader.insert_orders(mysql_orders)

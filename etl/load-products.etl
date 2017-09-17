@@ -69,7 +69,7 @@ class LoadProducts
                               and p.id = #{product_id} and meta_value !=''")
   end 
 
-  def save_products(mysql_products)
+  def insert_products(mysql_products)
     mysql_products.each do |product|
       spree_product = Spree::Product.new(
           id: product["id"],
@@ -109,4 +109,4 @@ end
 
 loader = LoadProducts.new
 mysql_products = loader.load_products
-loader.save_products(mysql_products)
+loader.insert_products(mysql_products)
