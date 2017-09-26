@@ -54,6 +54,8 @@ gem 'spree_print_invoice', github: 'spree-contrib/spree_print_invoice', branch: 
 gem 'spree_editor', github: 'spree-contrib/spree_editor'
 gem 'tinymce-rails-langs'
 gem 'mysql2'
+gem 'zoho-subscriptions'
+gem 'spree_custom_checkout', github: 'YanivRan/Spree-Custom-Checkout'
 
 
 group :development, :test do

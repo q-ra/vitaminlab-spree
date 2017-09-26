@@ -13,13 +13,10 @@ class LoadOrders
     mysql_orders = @client.query("select * from r235_proxi_orders where totalprice > 0 and formula_json not in ('','[]')")
   end 
 
-  
-
   def insert_orders(mysql_orders)
     mysql_orders.each do |order|
       line_items = JSON.parse(order["formula_json"].delete! '\\\\\\\\\\\\') if order["formula_json"].length > 3 
-      p order["id"]
-      p order
+      p "processing order #{order["id"]}"
       spree_order = Spree::Order.new(
           id: order["id"], 
           item_total: line_items.count, 
@@ -32,8 +29,30 @@ class LoadOrders
           created_at: order["submit_date"], 
           updated_at: order["submit_date"], 
           currency: 'USD',
-          store_id: Spree::Store.find_by_name("VitaminLab")["id"]
-        ).save!
+          store_id: Spree::Store.find_by_name("VitaminLab")["id"],
+          #completed_at: 
+        )
+      if spree_order.save()
+        line_items.each do |line_item|
+          p line_item
+          spree_line_item = Spree::LineItem.new(
+            order_id: spree_order["id"], 
+            variant_id: Spree::Variant.find_by_product_id(line_item["id"])["id"],
+            quantity: 1,#line_item["quantity"], 
+            price: line_item["line_total"], 
+            currency: 'USD', 
+            created_at: order["submit_date"], 
+            updated_at: order["submit_date"]
+            )
+          p spree_line_item
+          spree_line_item.save!
+          spree_order.line_items << spree_line_item
+        end 
+        p "Order #{order["id"]} processed successfully"
+      else 
+        p "Order #{order["id"]} failed to process"
+      end
+
     end
 
   end 
