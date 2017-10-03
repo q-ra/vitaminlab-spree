@@ -14,3 +14,4 @@
 //= require spree/backend/spree_multi_currency
 //= require spree/backend/spree_multi_domain
 //= require spree/backend/spree_print_invoice
+//= require spree/backend/spree_custom_checkout

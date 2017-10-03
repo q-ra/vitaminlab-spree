@@ -9,4 +9,5 @@
  *= require_tree .
  *= require spree/backend/spree_account_recurring
  *= require spree/backend/spree_editor
+ *= require spree/backend/spree_custom_checkout
 */
