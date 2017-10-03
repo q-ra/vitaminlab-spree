@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/YanivRan/Spree-Custom-Checkout.git
-  revision: d5f396cd7d4fb47f23fe643860f3ecbfc1fc24d3
+  revision: b7f61e9301b17e86ae305434adc336f1c6cb0e67
   specs:
     spree_custom_checkout (1.0.0)
       spree_core (~> 3.3.0)
