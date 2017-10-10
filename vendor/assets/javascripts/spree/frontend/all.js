@@ -15,3 +15,5 @@
 //= require spree/frontend/spree_account_recurring
 //= require spree/frontend/spree_multi_currency
 //= require spree/frontend/spree_custom_checkout
+
+//= require spree/frontend/spree_admin_roles_and_access
