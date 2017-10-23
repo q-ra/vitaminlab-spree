@@ -8,6 +8,7 @@ class LoadProducts
     truncate_table("spree_variants")
     truncate_table("spree_prices")
     truncate_table("spree_products_taxons")
+    truncate_table("spree_products_stores")
   end 
 
   def load_products
@@ -41,17 +42,17 @@ class LoadProducts
   end
 
   def set_product_properties(product)
-    rdv_prop = Spree::Property.where(name: 'RDV').first_or_create
-    dose_prop = Spree::Property.where(name: 'Dose').first_or_create
-    subname_prop = Spree::Property.where(name: 'Subname').first_or_create 
+    @rdv_prop = Spree::Property.where(name: 'RDV').first_or_create
+    @dose_prop = Spree::Property.where(name: 'Dose').first_or_create
+    @subname_prop = Spree::Property.where(name: 'Subname').first_or_create 
 
     rdv_value = get_product_property('RDV',product["id"]).first
     dose_value = get_product_property('Dose',product["id"]).first
     subname_value = get_product_property('Subname', product["id"]).first
 
-    Spree::ProductProperty.create property: rdv_prop, product: p, value: rdv_value["meta_value"] if rdv_value
-    Spree::ProductProperty.create property: dose_prop, product: p, value: dose_value["meta_value"] if dose_value
-    Spree::ProductProperty.create property: subname_prop, product: p, value: subname_value["meta_value"] if subname_value
+    Spree::ProductProperty.create property: @rdv_prop, product: p, value: rdv_value["meta_value"] if rdv_value
+    Spree::ProductProperty.create property: @dose_prop, product: p, value: dose_value["meta_value"] if dose_value
+    Spree::ProductProperty.create property: @subname_prop, product: p, value: subname_value["meta_value"] if subname_value
 
   end 
 
@@ -65,24 +66,29 @@ class LoadProducts
                               FROM r235_postmeta as pm 
                               left join r235_posts as p on p.id = pm.post_id
                               inner join r235_term_relationships as tr on tr.object_id = p.id
-                              where post_type = 'Vitamin' and meta_key = #{property} 
+                              where post_type = 'Vitamin' and meta_key = '#{property}' 
                               and p.id = #{product_id} and meta_value !=''")
   end 
 
   def insert_products(mysql_products)
     mysql_products.each do |product|
+      dose_value = get_product_property('Dose',product["id"]).first
+      price = get_product_price(product["id"]).to_f / dose_value["meta_value"].to_f
       spree_product = Spree::Product.new(
           id: product["id"],
           name: product["name"], 
           slug: product["slug"], 
           available_on: product["available_on"], 
           promotionable:  true, 
-          price: get_product_price(product["id"]), 
+          price: price, 
           sku: product["slug"],
           cost_price: get_product_cost(product["id"])
         )
+      set_product_properties(product)
       spree_product.shipping_category = Spree::ShippingCategory.where(name: 'Default').first_or_create
       store = Spree::Store.find_by_name("VitaminLab")
+      spree_product.stores << store
+      store = Spree::Store.find_by_name("NutraHacker")
       spree_product.stores << store
 
       if spree_product.save()

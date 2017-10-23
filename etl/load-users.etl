@@ -1,3 +1,5 @@
+
+# bundle exec kiba etl/load-users.etl
 require_relative '../config/environment'
 
 class LoadUsers

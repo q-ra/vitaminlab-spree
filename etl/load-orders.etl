@@ -1,3 +1,4 @@
+# bundle exec kiba etl/load-orders.etl
 require_relative '../config/environment'
 
 class LoadOrders
