@@ -1,3 +1,4 @@
+# bundle exec kiba etl/load-products.etl
 require_relative '../config/environment'
 
 class LoadProducts
@@ -9,6 +10,7 @@ class LoadProducts
     truncate_table("spree_prices")
     truncate_table("spree_products_taxons")
     truncate_table("spree_products_stores")
+    truncate_table("spree_product_properties")
   end 
 
   def load_products
@@ -46,13 +48,14 @@ class LoadProducts
     @dose_prop = Spree::Property.where(name: 'Dose').first_or_create
     @subname_prop = Spree::Property.where(name: 'Subname').first_or_create 
 
-    rdv_value = get_product_property('RDV',product["id"]).first
-    dose_value = get_product_property('Dose',product["id"]).first
-    subname_value = get_product_property('Subname', product["id"]).first
+    rdv_value = get_product_property('RDV',product.id).first
+    dose_value = get_product_property('Dose',product.id).first
+    subname_value = get_product_property("Subname Vitamin", product.id).first
+    
 
-    Spree::ProductProperty.create property: @rdv_prop, product: p, value: rdv_value["meta_value"] if rdv_value
-    Spree::ProductProperty.create property: @dose_prop, product: p, value: dose_value["meta_value"] if dose_value
-    Spree::ProductProperty.create property: @subname_prop, product: p, value: subname_value["meta_value"] if subname_value
+    Spree::ProductProperty.create property: @rdv_prop, product: product , value: rdv_value["meta_value"] if rdv_value
+    Spree::ProductProperty.create property: @dose_prop, product: product, value: dose_value["meta_value"] if dose_value
+    Spree::ProductProperty.create property: @subname_prop, product: product, value: subname_value["meta_value"] if subname_value
 
   end 
 
@@ -84,7 +87,7 @@ class LoadProducts
           sku: product["slug"],
           cost_price: get_product_cost(product["id"])
         )
-      set_product_properties(product)
+      
       spree_product.shipping_category = Spree::ShippingCategory.where(name: 'Default').first_or_create
       store = Spree::Store.find_by_name("VitaminLab")
       spree_product.stores << store
@@ -93,7 +96,7 @@ class LoadProducts
 
       if spree_product.save()
         save_product_taxon(spree_product, product)
-
+        set_product_properties(spree_product)
         p "Success: #{product["name"]} added"
       else
         p "Failure: #{product["name"]} could not be added"

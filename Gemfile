@@ -57,6 +57,7 @@ gem 'mysql2'
 gem 'zoho-subscriptions'
 gem 'spree_custom_checkout', github: 'YanivRan/Spree-Custom-Checkout'
 gem 'spree_admin_roles_and_access', '3.2.1.beta', github: 'YanivRan/spree_admin_roles_and_access'
+gem 'pdf-reader'
 
 
 group :development, :test do
